@@ -44,4 +44,4 @@ class ApproxEq a where
 
 instance ApproxEq Float where
   approxEq t x y = abs (x - y) <= t
-  absoluteTolFromRelativeTol rel x y = min rel (max (rel*abs x) (rel*abs y))
+  absoluteTolFromRelativeTol rel x y = max rel (max (rel*abs x) (rel*abs y))
