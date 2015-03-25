@@ -1,16 +1,16 @@
 module Graphics.CheeseGrater.TestVecMath (unitTests) where
 
-import           Data.AEq                      (AEq (..))
-import           Data.Maybe                    (isNothing)
-import           Test.Tasty                    (TestTree, testGroup)
-import           Test.Tasty.HUnit              (assertBool, testCase)
-import           Test.Tasty.QuickCheck         (choose, forAll, testProperty)
+import           Data.Maybe                     (isNothing)
+import           Test.Tasty                     (TestTree, testGroup)
+import           Test.Tasty.HUnit               (assertBool, testCase)
+import           Test.Tasty.QuickCheck          (choose, forAll, testProperty)
 
-import           Graphics.CheeseGrater.VecMath (Line (..), Point (..), Vec (..),
-                                                intersectLines,
-                                                intersectLinesQuick, pAdd, pEq,
-                                                pSubP, pSubV, vAdd, vAngle,
-                                                vDot, vEq, vLength, vMul, vSub)
+import           Graphics.CheeseGrater.ApproxEq (ApproxEq ((~==)))
+import           Graphics.CheeseGrater.VecMath  (Line (..), Point (..),
+                                                 Vec (..), intersectLines,
+                                                 intersectLinesQuick, pAdd,
+                                                 pSubP, pSubV, vAdd, vAngle,
+                                                 vDot, vLength, vMul, vSub)
 
 ------------------------------------------------------------
 
@@ -33,7 +33,7 @@ testAddSubVec :: TestTree
 testAddSubVec = testProperty "inverse relationship of addition and subtraction for Vec" addSub
   where
     addSub :: Vec -> Vec -> Bool
-    addSub v1 v2 = ((v1 `vAdd` v2) `vSub` v2) `vEq` v1
+    addSub v1 v2 = (v1 `vAdd` v2) `vSub` v2 ~== v1
 
 testDot :: TestTree
 testDot = testCase "dot product" $ assertBool "(ad-hoc)" f
@@ -45,13 +45,13 @@ testAddSubPoint :: TestTree
 testAddSubPoint = testProperty "inverse relationship of addition and subtraction for Point" addSub
   where
     addSub :: Point -> Vec -> Bool
-    addSub p v = ((p `pAdd` v) `pSubP` p) `vEq` v
+    addSub p v = (p `pAdd` v) `pSubP` p ~== v
 
 testAddSubPointV :: TestTree
 testAddSubPointV = testProperty "inverse relationship of addition and subtraction for Point wrt Vec" addSub
   where
     addSub :: Point -> Vec -> Bool
-    addSub p v = ((p `pAdd` v) `pSubV` v) `pEq` p
+    addSub p v = (p `pAdd` v) `pSubV` v ~== p
 
 testVMul :: TestTree
 testVMul = testProperty
@@ -59,7 +59,7 @@ testVMul = testProperty
            forAll (choose (1,100)) mulInv
   where
     mulInv :: Float -> Vec -> Bool
-    mulInv c v = ((1.0 / c) `vMul` (c `vMul` v)) `vEq` v
+    mulInv c v = (1.0 / c) `vMul` (c `vMul` v) ~== v
 
 testVLength :: TestTree
 testVLength = testProperty "vector length should be the square root of the vector dot with itself" l
@@ -92,7 +92,7 @@ testIntersectLinesQuick :: TestTree
 testIntersectLinesQuick = testCase "line-line intersection" $ assertBool "(ad-hoc)" f
   where
     f :: Bool
-    f = intersectLinesQuick l1 l2 `pEq` Point 2 2
+    f = intersectLinesQuick l1 l2 ~== Point 2 2
     l1, l2 :: Line
     l1 = Line (Point 1 1) (Vec   1  1)
     l2 = Line (Point 3 1) (Vec (-2) 2)

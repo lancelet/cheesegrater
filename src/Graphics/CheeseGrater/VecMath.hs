@@ -4,16 +4,12 @@ module Graphics.CheeseGrater.VecMath (
   , Point(..)
   , Line(..)
   -- * Functions
-  , vApproxEq
-  , vEq
   , vAdd
   , vDot
   , vSub
   , vMul
   , vLength
   , vAngle
-  , pApproxEq
-  , pEq
   , pAdd
   , pSubV
   , pSubP
@@ -21,8 +17,10 @@ module Graphics.CheeseGrater.VecMath (
   , intersectLinesQuick
   ) where
 
-import           Control.Applicative ((<$>), (<*>))
-import           Test.QuickCheck     (Arbitrary (arbitrary))
+import           Control.Applicative            ((<$>), (<*>))
+import           Test.QuickCheck                (Arbitrary (arbitrary))
+
+import           Graphics.CheeseGrater.ApproxEq (ApproxEq (..))
 
 ------------------------------------------------------------
 
@@ -31,24 +29,10 @@ data Vec = Vec {-# UNPACK #-} !Float -- ^ x component
                {-# UNPACK #-} !Float -- ^ y component
          deriving (Eq, Show)
 
--- | Approximate equality for vectors.
---   Two vectors are approximately equal if the cartesian distance between their tips is less than
---   the supplied distance.
-vApproxEq :: Float -> Vec -> Vec -> Bool
-vApproxEq d v1 v2 = vLength (v1 `vSub` v2) < d
+instance ApproxEq Vec where
+  approxEq t v1 v2 = vLength (v1 `vSub` v2) <= t
+  absoluteTolFromRelativeTol rel x y = max rel (max (vLength x) (vLength y))
 
--- | Approximate equality for vectors (for tests).
---   An approximate equality which is loose enough for test cases.
-vEq :: Vec -> Vec -> Bool
-vEq v1 v2 = vApproxEq tol v1 v2
-  where
-    tol :: Float
-    tol = max 1E-4 (1E-4 * scale)
-    
-    scale :: Float
-    scale = max (vLength v1) (vLength v2)
-
--- | Arbitrary 2D vectors.
 instance Arbitrary Vec where arbitrary = Vec <$> arbitrary <*> arbitrary
 
 -- | Adds 2D vectors.
@@ -88,18 +72,11 @@ data Point = Point {-# UNPACK #-} !Float -- ^ x component
                    {-# UNPACK #-} !Float -- ^ y component
            deriving (Eq, Show)
 
--- | Approximate equality for points.
---   Two points are approximately equal if the cartesian distance between them is less than
---   the supplied distance.
-pApproxEq :: Float -> Point -> Point -> Bool
-pApproxEq d p1 p2 = vLength (p1 `pSubP` p2) < d
+instance ApproxEq Point where
+  approxEq t p1 p2 = vLength (p1 `pSubP` p2) <= t
+  absoluteTolFromRelativeTol rel (Point x1 y1) (Point x2 y2) =
+    absoluteTolFromRelativeTol rel (Vec x1 y1) (Vec x2 y2)
 
--- | Approximate equality for points (for tests).
---   An approximate equality which is loose enough for test cases.
-pEq :: Point -> Point -> Bool
-pEq (Point x1 y1) (Point x2 y2) = Vec x1 y1 `vEq` Vec x2 y2
-
--- | Arbitrary 2D points.
 instance Arbitrary Point where arbitrary = Point <$> arbitrary <*> arbitrary
 
 -- | Adds a vector to a point.

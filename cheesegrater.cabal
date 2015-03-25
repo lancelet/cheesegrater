@@ -15,10 +15,10 @@ library
   ghc-options:         -Wall -Werror
   build-depends:
       base              >= 4.7 && < 4.8
-    , ieee754           == 0.7.6
     , QuickCheck        == 2.7.6
   exposed-modules:
-      Graphics.CheeseGrater.VecMath
+      Graphics.CheeseGrater.ApproxEq
+    , Graphics.CheeseGrater.VecMath
 
 -- | Test suite
 test-suite test
@@ -30,7 +30,6 @@ test-suite test
   build-depends:
       cheesegrater
     , base
-    , ieee754
     , QuickCheck
     , tasty                     == 0.10.1
     , tasty-hunit               == 0.9.0.1
