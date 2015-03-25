@@ -18,6 +18,7 @@ library
     , QuickCheck        == 2.7.6
   exposed-modules:
       Graphics.CheeseGrater.ApproxEq
+    , Graphics.CheeseGrater.PointListPoly
     , Graphics.CheeseGrater.VecMath
 
 -- | Test suite
