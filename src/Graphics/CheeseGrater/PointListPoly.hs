@@ -5,8 +5,10 @@ module Graphics.CheeseGrater.PointListPoly (
   , editPlp
   ) where
 
-import           Graphics.CheeseGrater.ApproxEq (ApproxEq (..))
-import           Graphics.CheeseGrater.VecMath  (Point (..), Vec(..), vLength)
+import           Graphics.CheeseGrater.ApproxEq  (ApproxEq (..))
+import           Graphics.CheeseGrater.Area      (Area (..))
+import           Graphics.CheeseGrater.LineSlice (LineSlice (..))
+import           Graphics.CheeseGrater.VecMath   (Point (..), Vec (..), vLength)
 
 ------------------------------------------------------------
 
@@ -34,6 +36,22 @@ instance ApproxEq PointListPoly where
       ptTol :: Point -> Float
       ptTol (Point x y) = max t (t * vLength (Vec x y))
 
+instance Area PointListPoly where
+  area = areaPlp
+
+instance LineSlice PointListPoly where
+  lineSlice = lineSlicePlp
+
+-- | Area of a 'PointListPoly'.
+areaPlp :: PointListPoly -> Float
+areaPlp (PointListPoly ps) = 0.5 * (sum $ map det $ pairsWithWrap ps)
+  where
+    det :: (Point, Point) -> Float
+    det (Point x1 y1, Point x2 y2) = x1*y2 - y1*x2
+
+lineSlicePlp :: PointListPoly -> Point -> Vec -> PointListPoly
+lineSlicePlp = undefined
+
 -- | Edits a PointListPoly.
 -- Modifies a `PointListPoly` by removing a contiguous chain of points and adding a linear segment.
 -- For example,
@@ -46,7 +64,21 @@ editPlp :: PointListPoly  -- ^ polygon to edit
         -> PointListPoly  -- ^ polygon that is produced
 editPlp (PointListPoly ps) p1 p2 = PointListPoly $ editChunk ps p1 p2
 
+-- | Checks that a PointListPoly is not self-intersecting.
+--isNonSelfIntersecting :: PointListPoly -> Bool
+--isNonSelfIntersecting (PointListPoly ps) = undefined
+
+-- | Fetches all the individual line segments that makes up a 'PointListPoly'.
+--lines :: PointListPoly -> [Line]
+--lines (PointListPoly ps) = map (\(p1,p2) -> Line p1 p2) (pairsWithWrap ps)
+
 ------------------------------------------------------------
+
+-- | Pairs up sequential elements of a list, wrapping back around to the start.
+-- For example,
+--   pairsWithWrap [ a, b, c ] = [ (a,b), (b,c), (c,a)  ]
+pairsWithWrap :: [a] -> [(a,a)]
+pairsWithWrap xs = zip xs (tail xs ++ [head xs])
 
 -- | Edits a chunk of a list.
 -- Modifies the list by removing a contiguous range of elements and adding two elements in their

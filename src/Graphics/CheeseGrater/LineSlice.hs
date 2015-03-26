@@ -3,7 +3,7 @@ module Graphics.CheeseGrater.LineSlice (
     LineSlice(..)
   ) where
 
-import Graphics.CheeseGreater.VecMath (Point, Vec)
+import Graphics.CheeseGrater.VecMath (Point, Vec)
 
 -- | Allows for something to be sliced along a line.
 class LineSlice a where
